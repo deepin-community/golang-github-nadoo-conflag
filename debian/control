@@ -1,15 +1,146 @@
-Source: template-repository
-Section: unknown
+Source: conflag
+Section: golang
 Priority: optional
-Maintainer: Tsic404 <liuheng@deepin.org>
-Build-Depends: debhelper (>= 11)
-Standards-Version: 4.1.3
-Homepage: https://github.com/deepin-community/template-repository
-#Vcs-Browser: https://salsa.debian.org/debian/deepin-community-template-repository
-#Vcs-Git: https://salsa.debian.org/debian/deepin-community-template-repository.git
+Maintainer: Debian Go Packaging Team <team+pkg-go@tracker.debian.org>
+Uploaders: Gui-Yue <yuemeng.gui@gmail.com>
+Rules-Requires-Root: no
+Build-Depends: debhelper-compat (= 13),
+               dh-sequence-golang,
+               golang-any
+Testsuite: autopkgtest-pkg-go
+Standards-Version: 4.6.2
+Vcs-Browser: https://salsa.debian.org/go-team/packages/conflag
+Vcs-Git: https://salsa.debian.org/go-team/packages/conflag.git
+Homepage: https://github.com/nadoo/conflag
+XS-Go-Import-Path: github.com/nadoo/conflag
 
-Package: template-repository
+Package: conflag
+Section: TODO
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Built-Using: ${misc:Built-Using}
+Description: conflag is a drop-in replacement for Go's standard flag package with config file support. (program)
+ conflag
+ .
+ Go Report Card
+ (https://goreportcard.com/report/github.com/nadoo/conflag) GitHub tag
+ (https://github.com/nadoo/conflag/releases) Go Document
+ (https://pkg.go.dev/github.com/nadoo/conflag)
+ .
+ conflag is a drop-in replacement for Go's standard flag package with
+ config file support.
+ .
+ Usage
+ .
+ Your code:
+ .
+   package main
+ .
+   import (
+   	"fmt"
+ .
+   	"github.com/nadoo/conflag"
+   )
+ .
+   var conf struct {
+   	Name string
+   	Age  int
+   	Male bool
+   }
+ .
+   func main() {
+   	// get a new conflag instance
+   	flag := conflag.New()
+ .
+   	// setup flags as the standard flag package
+   	flag.StringVar(&conf.Name, "name", "", "your name")
+   	flag.IntVar(&conf.Age, "age", 0, "your age")
+   	flag.BoolVar(&conf.Male, "male", false, "your sex")
+ .
+   	// parse before access flags
+   	flag.Parse()
+ .
+   	// now you're able to get the parsed flag values
+   	fmt.Printf("  Name: %s\n", conf.Name)
+   	fmt.Printf("  Age: %d\n", conf.Age)
+   	fmt.Printf("  Male: %v\n", conf.Male)
+   }
+ .
+ Run without config file:
+ .
+ command:
+ .
+   example -name Jay -age 30
+ .
+ output:
+ .
+     Name: Jay
+     Age: 30
+     Male: false
+ .
+ Run with config file and environment variable(-config):
+ .
+ example.conf:
+ .
+   name={$NAME}
+   age=20
+   male
+ .
+ command: **use "-config" flag to specify the config file path.**
+ .
+   NAME=Jason example -config example.conf
+ .
+ output:
+ .
+     Name: Jason
+     Age: 20
+     Male: true
+ .
+ Run with config file and OVERRIDE a flag value using commandline:
+ .
+ example.conf:
+ .
+   name=Jason
+   age=20
+   male
+ .
+ command:
+ .
+   example -config example.conf -name Michael
+ .
+ output:
+ .
+     Name: Michael
+     Age: 20
+     Male: true
+ .
+ Config File
+ .
+  * format: KEY=VALUE
+ .
+ **just use the command line flag name as key name**:
+ .
+   ## config file
+   # comment line starts with "#"
+ .
+   # format:
+   #KEY=VALUE,
+   # just use the command line flag name as key name
+   # use {$ENV_VAR_NAME} in VALUE to get the Environment Variable value
+ .
+   # your name
+   name={$NAME}
+ .
+   # your age
+   age=20
+ .
+   # are you male?
+   male=true
+ .
+   # use include to include more config files
+   include=part1.inc.conf
+   include=part2.inc.conf
+ .
+ See example.conf (/example/example.conf)
+
